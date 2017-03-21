@@ -1,5 +1,7 @@
 This is my vimrc. clone, fork it, modify it, be happy ;)
 
+In order to run this properly, install Vundle
+
 
 This is the content of my `~/.vimrc`.
 ```
@@ -8,8 +10,8 @@ source ~/.vim/vimrc
 set background=dark
 set tabstop=4
 set expandtab
-colorscheme railscasts
 syntax on
+colorscheme railscasts
 nnoremap <up> <nop>
 nnoremap <down> <nop>
 nnoremap <left> <nop>

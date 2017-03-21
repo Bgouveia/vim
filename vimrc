@@ -1,34 +1,33 @@
-"load pathogen managed plugins
-"call pathogen#runtime_append_all_bundles()
-execute pathogen#infect()
+set nocompatible              " be iMproved, required
+filetype off                  " required
 
-" set the runtime path to include Vundle and initialize
 set rtp+=~/.vim/bundle/Vundle.vim
 call vundle#begin()
 
-Plugin 'gmarik/Vundle.vim'
+Plugin 'VundleVim/Vundle.vim'
 
-Plugin 'moll/vim-node'
+Plugin 'bufexplorer.zip'
+Plugin 'ervandew/supertab'
+Plugin 'honza/vim-snippets'
+Plugin 'jpo/vim-railscasts-theme'
+Plugin 'mattn/emmet-vim'
+Plugin 'nvie/vim-flake8'
+Plugin 'pangloss/vim-javascript'
+Plugin 'scrooloose/nerdcommenter'
+Plugin 'scrooloose/nerdtree'
+Plugin 'scrooloose/syntastic'
+Plugin 'tpope/vim-fugitive'
+Plugin 'tpope/vim-surround'
 
-Plugin 'janko-m/vim-test'
-
-Plugin 'jmcantrell/vim-virtualenv'
 
 call vundle#end()
 filetype plugin indent on
-
-"necessary on some Linux distros for pathogen to properly load bundles
-filetype off
-
-"Use Vim settings, rather then Vi settings (much better!).
-"This must be first, because it changes other options as a side effect.
-set nocompatible
 
 "allow backspacing over everything in insert mode
 set backspace=indent,eol,start
 
 "store lots of :cmdline history
-set history=1000
+set history=10000
 
 set showcmd     "show incomplete cmds down the bottom
 set showmode    "show current mode down the bottom
@@ -68,11 +67,6 @@ set fo=l
 set statusline=%f       "tail of the filename
 
 "Git
-set statusline+=[%{GitBranch()}]
-
-"RVM
-set statusline+=%{exists('g:loaded_rvm')?rvm#statusline():''}
-
 set statusline+=%=      "left/right separator
 set statusline+=%c,     "cursor column
 set statusline+=%l/%L   "cursor line/total lines
@@ -202,21 +196,12 @@ set wildmode=list:longest   "make cmdline tab completion similar to bash
 set wildmenu                "enable ctrl-n and ctrl-p to scroll thru matches
 set wildignore=*.o,*.obj,*~ "stuff to ignore when tab completing
 
-"display tabs and trailing spaces
-"set list
-"set listchars=tab:\ \ ,extends:>,precedes:<
-" disabling list because it interferes with soft wrap
-
 set formatoptions-=o "dont continue comments when pushing o/O
 
 "vertical/horizontal scroll off settings
 set scrolloff=3
 set sidescrolloff=7
 set sidescroll=1
-
-"load ftplugins and indent files
-filetype plugin on
-filetype indent on
 
 "turn on syntax highlighting
 syntax on
@@ -228,158 +213,8 @@ set ttymouse=xterm2
 "hide buffers when not displayed
 set hidden
 
-"Command-T configuration
-let g:CommandTMaxHeight=10
-let g:CommandTMatchWindowAtTop=1
-
-if has("gui_running")
-    "tell the term has 256 colors
-    set t_Co=256
-
-    colorscheme native
-    set guitablabel=%M%t
-    set lines=40
-    set columns=115
-
-    if has("gui_gnome")
-        set term=gnome-256color
-        colorscheme native
-        set guifont=Monaco\ 11
-    endif
-
-    if has("gui_mac") || has("gui_macvim")
-        set guifont=Menlo:h14
-        " key binding for Command-T to behave properly
-        " uncomment to replace the Mac Command-T key to Command-T plugin
-        "macmenu &File.New\ Tab key=<nop>
-        "map <D-t> :CommandT<CR>
-        " make Mac's Option key behave as the Meta key
-        set invmmta
-        try
-          set transparency=5
-        catch
-        endtry
-    endif
-
-    if has("gui_win32") || has("gui_win32s")
-        set guifont=Consolas:h12
-        set enc=utf-8
-    endif
-else
-    "dont load csapprox if there is no gui support - silences an annoying warning
-    let g:CSApprox_loaded = 1
-
-    "set native colorscheme when running vim in gnome terminal
-    if $COLORTERM == 'gnome-terminal'
-        set term=gnome-256color
-        colorscheme native
-    else
-        colorscheme native 
-    endif
-endif
-
-" PeepOpen uses <Leader>p as well so you will need to redefine it so something
-" else in your ~/.vimrc file, such as:
-" nmap <silent> <Leader>q <Plug>PeepOpen
-
-silent! nmap <silent> <Leader>p :NERDTreeToggle<CR>
-nnoremap <silent> <C-f> :call FindInNERDTree()<CR>
-
-"make <c-l> clear the highlight as well as redraw
-nnoremap <C-L> :nohls<CR><C-L>
-inoremap <C-L> <C-O>:nohls<CR>
-
-"map to bufexplorer
-nnoremap <leader>b :BufExplorer<cr>
-
-"map to CommandT TextMate style finder
-nnoremap <leader>t :CommandT<CR>
-
-"map Q to something useful
-noremap Q gq
-
-"make Y consistent with C and D
-nnoremap Y y$
-
-"bindings for ragtag
-inoremap <M-o>       <Esc>o
-inoremap <C-j>       <Down>
-let g:ragtag_global_maps = 1
-
 "mark syntax errors with :signs
 let g:syntastic_enable_signs=1
-
-"key mapping for vimgrep result navigation
-map <A-o> :copen<CR>
-map <A-q> :cclose<CR>
-map <A-j> :cnext<CR>
-map <A-k> :cprevious<CR>
-
-"snipmate setup
-try
-  source ~/.vim/snippets/support_functions.vim
-catch
-  source ~/vimfiles/snippets/support_functions.vim
-endtry
-autocmd vimenter * call s:SetupSnippets()
-function! s:SetupSnippets()
-
-    "if we're in a rails env then read in the rails snippets
-    if filereadable("./config/environment.rb")
-      try
-        call ExtractSnips("~/.vim/snippets/ruby-rails", "ruby")
-        call ExtractSnips("~/.vim/snippets/eruby-rails", "eruby")
-      catch
-        call ExtractSnips("~/vimfiles/snippets/ruby-rails", "ruby")
-        call ExtractSnips("~/vimfiles/snippets/eruby-rails", "eruby")
-      endtry
-    endif
-
-    try
-      call ExtractSnips("~/.vim/snippets/html", "eruby")
-      call ExtractSnips("~/.vim/snippets/html", "xhtml")
-      call ExtractSnips("~/.vim/snippets/html", "php")
-    catch
-      call ExtractSnips("~/vimfiles/snippets/html", "eruby")
-      call ExtractSnips("~/vimfiles/snippets/html", "xhtml")
-      call ExtractSnips("~/vimfiles/snippets/html", "php")
-    endtry
-endfunction
-
-"visual search mappings
-function! s:VSetSearch()
-    let temp = @@
-    norm! gvy
-    let @/ = '\V' . substitute(escape(@@, '\'), '\n', '\\n', 'g')
-    let @@ = temp
-endfunction
-vnoremap * :<C-u>call <SID>VSetSearch()<CR>//<CR>
-vnoremap # :<C-u>call <SID>VSetSearch()<CR>??<CR>
-
-
-"jump to last cursor position when opening a file
-"dont do it when writing a commit log entry
-autocmd BufReadPost * call SetCursorPosition()
-function! SetCursorPosition()
-    if &filetype !~ 'commit\c'
-        if line("'\"") > 0 && line("'\"") <= line("$")
-            exe "normal! g`\""
-            normal! zz
-        endif
-    end
-endfunction
-
-"define :HighlightLongLines command to highlight the offending parts of
-"lines that are longer than the specified length (defaulting to 80)
-command! -nargs=? HighlightLongLines call s:HighlightLongLines('<args>')
-function! s:HighlightLongLines(width)
-    let targetWidth = a:width != '' ? a:width : 79
-    if targetWidth > 0
-        exec 'match Todo /\%>' . (targetWidth) . 'v/'
-    else
-        echomsg "Usage: HighlightLongLines [natural number]"
-    endif
-endfunction
 
 "key mapping for window navigation
 map <C-h> <C-w>h
@@ -399,28 +234,6 @@ nmap <D-[> <<
 nmap <D-]> >>
 vmap <D-[> <gv
 vmap <D-]> >gv
-
-let ScreenShot = {'Icon':0, 'Credits':0, 'force_background':'#FFFFFF'}
-
-"Enabling Zencoding
-let g:user_zen_settings = {
-  \  'php' : {
-  \    'extends' : 'html',
-  \    'filters' : 'c',
-  \  },
-  \  'xml' : {
-  \    'extends' : 'html',
-  \  },
-  \  'haml' : {
-  \    'extends' : 'html',
-  \  },
-  \  'erb' : {
-  \    'extends' : 'html',
-  \  },
- \}
-
-nnoremap <silent> <F5> :let _s=@/<Bar>:%s/\s\+$//e<Bar>:let @/=_s<Bar>:nohl<CR>
-colorscheme native
 
 set clipboard^=unnamed      "clipboard
 set clipboard^=unnamedplus  "clipboard
